@@ -1,5 +1,5 @@
+using BlazorShop.Api.Context;
 using BlazorShop.Api.Repositories;
-using BlazorShop.API.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 
@@ -11,12 +11,16 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+
 builder.Services.AddCors();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnction"));
 });
+
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddScoped<ICarrinhoCompraRepository, CarrinhoCompraRepository>();
 
 var app = builder.Build();
 
@@ -28,7 +32,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(policy =>
-    policy.WithOrigins("https://localhost:7181", "http://localhost:5148")
+    policy.WithOrigins("http://localhost:7023", "https://localhost:7023")
     .AllowAnyMethod()
     .AllowAnyHeader()
     .WithHeaders(HeaderNames.ContentType)

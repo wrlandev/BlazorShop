@@ -1,16 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace BlazorShop.Api.Entities
+namespace BlazorShop.Api.Entities;
+
+public class Categoria
 {
-    public class Categoria
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        [MaxLength(80)]
-        public string Nome { get; set; } = string.Empty;
-        public string IconCSS { get; set; } = string.Empty;
+    [MaxLength(100)]
+    public string Nome { get; set; } = string.Empty;
+    public string IconCSS { get; set; } = string.Empty;
 
-        public Collection<Produto> Produtos { get; set; } = new();
-    }
+    public Collection<Produto> Produtos { get; set; }
+          = new Collection<Produto>();
 }

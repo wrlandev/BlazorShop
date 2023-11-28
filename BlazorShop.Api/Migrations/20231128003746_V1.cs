@@ -9,17 +9,30 @@ namespace BlazorShop.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Categoria",
+                name: "Carrinhos",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
+                    UsuarioId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Carrinhos", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Categorias",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     IconCSS = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categoria", x => x.Id);
+                    table.PrimaryKey("PK_Categorias", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -28,11 +41,17 @@ namespace BlazorShop.Api.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    NomeUsuario = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false)
+                    NomeUsuario = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CarrinhoId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Usuarios", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Usuarios_Carrinhos_CarrinhoId",
+                        column: x => x.CarrinhoId,
+                        principalTable: "Carrinhos",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -41,7 +60,7 @@ namespace BlazorShop.Api.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(80)", maxLength: 80, nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Descricao = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     ImagemUrl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Preco = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
@@ -52,28 +71,9 @@ namespace BlazorShop.Api.Migrations
                 {
                     table.PrimaryKey("PK_Produtos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Produtos_Categoria_CategoriaId",
+                        name: "FK_Produtos_Categorias_CategoriaId",
                         column: x => x.CategoriaId,
-                        principalTable: "Categoria",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Carrinhos",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UsuarioId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Carrinhos", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Carrinhos_Usuarios_UsuarioId",
-                        column: x => x.UsuarioId,
-                        principalTable: "Usuarios",
+                        principalTable: "Categorias",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -106,7 +106,16 @@ namespace BlazorShop.Api.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Categoria",
+                table: "Carrinhos",
+                columns: new[] { "Id", "UsuarioId" },
+                values: new object[,]
+                {
+                    { 1, "1" },
+                    { 2, "2" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Categorias",
                 columns: new[] { "Id", "IconCSS", "Nome" },
                 values: new object[,]
                 {
@@ -118,20 +127,11 @@ namespace BlazorShop.Api.Migrations
 
             migrationBuilder.InsertData(
                 table: "Usuarios",
-                columns: new[] { "Id", "NomeUsuario" },
+                columns: new[] { "Id", "CarrinhoId", "NomeUsuario" },
                 values: new object[,]
                 {
-                    { 1, "Macoratti" },
-                    { 2, "Janice" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Carrinhos",
-                columns: new[] { "Id", "UsuarioId" },
-                values: new object[,]
-                {
-                    { 1, 1 },
-                    { 2, 2 }
+                    { 1, null, "Macoratti" },
+                    { 2, null, "Janice" }
                 });
 
             migrationBuilder.InsertData(
@@ -175,15 +175,14 @@ namespace BlazorShop.Api.Migrations
                 column: "ProdutoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Carrinhos_UsuarioId",
-                table: "Carrinhos",
-                column: "UsuarioId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Produtos_CategoriaId",
                 table: "Produtos",
                 column: "CategoriaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Usuarios_CarrinhoId",
+                table: "Usuarios",
+                column: "CarrinhoId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -192,16 +191,16 @@ namespace BlazorShop.Api.Migrations
                 name: "CarrinhoItens");
 
             migrationBuilder.DropTable(
-                name: "Carrinhos");
+                name: "Usuarios");
 
             migrationBuilder.DropTable(
                 name: "Produtos");
 
             migrationBuilder.DropTable(
-                name: "Usuarios");
+                name: "Carrinhos");
 
             migrationBuilder.DropTable(
-                name: "Categoria");
+                name: "Categorias");
         }
     }
 }
